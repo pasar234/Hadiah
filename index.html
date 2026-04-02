@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Tabel Data</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 16px;
+        }
+        .container {
+            max-width: 100%;
+            overflow-x: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 280px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f9ff;
+        }
+        td {
+            word-break: break-word;
+        }
+        .keterangan {
+            font-style: italic;
+            color: #555;
+        }
+        @media (max-width: 600px) {
+            th, td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Alamat</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Data akan dimuat via JavaScript -->
+                <tr><td colspan="3" style="text-align:center">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Contoh data awal (bisa diganti dengan data dari API atau file)
+        const dataSamples = [
+            { nama: "Ahmad Wijaya", alamat: "Jl. Merdeka No. 12, Jakarta", keterangan: "Karyawan tetap" },
+            { nama: "Siti Nurhaliza", alamat: "Perumahan Griya Asri Blok B5, Bandung", keterangan: "Freelance" },
+            { nama: "Budi Santoso", alamat: "Ds. Sukamakmur RT 02/04, Malang", keterangan: "Mahasiswa magang" },
+            { nama: "Dewi Lestari", alamat: "Apartemen Green Tower Lantai 8, Surabaya", keterangan: "Manajer proyek" },
+            { nama: "Eko Prasetyo", alamat: "Jl. Kenanga No. 45, Yogyakarta", keterangan: "Sedang cuti" }
+        ];
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Tidak ada data</td></tr>';
+                return;
+            }
+
+            let html = '';
+            for (let item of data) {
+                html += `
+                    <tr>
+                        <td>${escapeHtml(item.nama)}</td>
+                        <td>${escapeHtml(item.alamat)}</td>
+                        <td class="keterangan">${escapeHtml(item.keterangan)}</td>
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
+        }
+
+        // Fungsi sederhana untuk menghindari XSS
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+                return c;
+            });
+        }
+
+        // Memuat data (bisa dari localStorage, file JSON, atau API)
+        function loadData() {
+            // Coba ambil data dari localStorage jika ada
+            const savedData = localStorage.getItem('tabelData');
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    if (Array.isArray(parsed) && parsed.length) {
+                        renderTable(parsed);
+                        return;
+                    }
+                } catch(e) {}
+            }
+            // Jika tidak ada, gunakan data sampel
+            renderTable(dataSamples);
+        }
+
+        // Simpan data ke localStorage (contoh interaksi, bisa ditambah tombol)
+        window.saveDataToLocal = function(dataToSave) {
+            localStorage.setItem('tabelData', JSON.stringify(dataToSave));
+        };
+
+        // Jalankan
+        loadData();
+    </script>
+</body>
+</html>
